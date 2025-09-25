@@ -1,0 +1,47 @@
+# Configuration for APIs and Services
+
+# 1. LLM Services
+llm_services:
+  gemini:
+    api_key: "GEMINI_API_KEY"
+    model: "gemini-1.5-flash"
+
+# 2. Embedding Services
+embedding_services:
+  sentence_transformers:
+    model: "all-MiniLM-L6-v2"
+    type: "local"
+
+# 3. Vector Database
+vector_database:
+  chroma:
+    provider: "chroma"
+    persist_directory: "./data/chroma_db"
+
+# 4. Web Scraping Configuration
+web_scraping:
+  user_agent: "Mozilla/5.0 (compatible; ITC-AMS-SearchBot/1.0; +http://itc.edu.kh)"
+
+# 5. Data Paths
+data_paths:
+  memory_db: "./data/memory.db"
+  chroma_db_dir: "./data/chroma_db"
+
+# 6. Domain Filters - CRITICAL for defining your internal knowledge base
+domain_filters:
+  itc:
+    - "https://www.chain-cambodia.eu/partners/institute-technology-cambodia"
+    - "https://en.wikipedia.org/wiki/Institute_of_Technology_of_Cambodia"
+    - "https://itc.edu.kh/**"
+    - "http://pursea.hanu.vn/en/membre/institute-technology-cambodia-itc"
+    - "https://www.unirank.org/kh/uni/institute-of-technology-of-cambodia"
+    - "https://www.researchgate.net/institution/Institute_of_Technology_of_Cambodia"
+    - "https://greencap-cambodia.eu/institute-of-technology-of-cambodia-itc/"
+    - "https://www.facebook.com/ITCofficialpage/**"
+    - "https://www.linkedin.com/school/institute-of-technology-of-cambodia/**"
+    
+  ams:
+    - "https://itc.edu.kh/home-ams/**"
+    - "https://sites.google.com/view/graduate-school-of-itc/programs/master-programs/data-science"
+    - "https://www.facebook.com/amsitc/**"
+    - "https://www.linkedin.com/company/ams-itc/**"

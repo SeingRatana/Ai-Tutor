@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITC/AMS Research Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-graduation-cap"></i> ITC/AMS Research Assistant</h1>
+            <p class="tagline">Your AI-powered guide to the Institute of Technology of Cambodia</p>
+        </header>
+
+        <div class="chat-container">
+            <div id="chat-history" class="chat-history">
+                <div class="welcome-message">
+                    <p>Hello! 👋 I'm your ITC/AMS research assistant. Ask me anything about: ✨</p>
+                    <ul>
+                        <li>Academic programs and admissions 📚</li>
+                        <li>Faculty and research 🔬</li>
+                        <li>Campus facilities and events 🏫</li>
+                        <li>Student life and resources 🧑‍🎓</li>
+                        <li>History and achievements 🏆</li>
+                    </ul>
+                    <p class="try-examples">
+                        <strong>Try:</strong> 
+                        <span class="example-query" data-query="What programs does ITC offer?">What programs does ITC offer?</span> • 
+                        <span class="example-query" data-query="Tell me about AMS research">Tell me about AMS research</span> • 
+                        <span class="example-query" data-query="Admission requirements">Admission requirements</span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <form id="chat-form">
+                    <input type="text" id="query-input" placeholder="Ask about ITC or AMS..." autocomplete="off">
+                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <div id="loading" class="loading-indicator">
+            <div class="spinner"></div>
+            <span>Researching your question... 🧐</span>
+        </div>
+    </div>
+
+    <script>
+        const chatHistory = document.getElementById('chat-history');
+        const chatForm = document.getElementById('chat-form');
+        const queryInput = document.getElementById('query-input');
+        const loadingIndicator = document.getElementById('loading');
+        
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', role);
+            
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message-content');
+            
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+
+            if (role === 'user') {
+                messageContent.innerHTML = `
+                    <div class="message-header">
+                        <strong>You:</strong>
+                        <span class="timestamp">${timestamp}</span>
+                    </div>
+                    <p>${content}</p>
+                `;
+            } else {
+                try {
+                    const data = JSON.parse(content);
+                    let htmlContent = `
+                        <div class="message-header">
+                            <strong>Assistant:</strong>
+                            <span class="timestamp">${timestamp}</span>
+                        </div>
+                        <div class="response-content">
+                            <div class="main-answer">${marked.parse(data.answer || 'No answer provided. 🤔')}</div>`;
+                    
+                    if (data.summary) {
+                        htmlContent += `<div class="summary"><strong>Summary:</strong> ${marked.parse(data.summary)}</div>`;
+                    }
+                    
+                    if (data.details) {
+                        htmlContent += `<div class="details">${marked.parse(data.details)}</div>`;
+                    }
+                    
+                    if (data.list_items && data.list_items.length > 0) {
+                        htmlContent += `<div class="list-section"><strong>Key Points:</strong><ul>`;
+                        data.list_items.forEach(item => {
+                            htmlContent += `<li>${marked.parseInline(item)}</li>`;
+                        });
+                        htmlContent += `</ul></div>`;
+                    }
+                    
+                    if (data.sources && data.sources.length > 0) {
+                        htmlContent += `<div class="sources"><strong>Sources:</strong><ul>`;
+                        data.sources.forEach(source => {
+                            htmlContent += `<li><a href="${source}" target="_blank">${source}</a></li>`;
+                        });
+                        htmlContent += `</ul></div>`;
+                    }
+                    
+                    htmlContent += `</div>`;
+                    messageContent.innerHTML = htmlContent;
+                } catch (e) {
+                    messageContent.innerHTML = `
+                        <div class="message-header">
+                            <strong>Assistant:</strong>
+                            <span class="timestamp">${timestamp}</span>
+                        </div>
+                        <p>${content}</p>
+                    `;
+                }
+            }
+            
+            messageDiv.appendChild(messageContent);
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+        
+        async function sendMessage(message) {
+            addMessage('user', message);
+            queryInput.value = '';
+            loadingIndicator.style.display = 'flex';
+            
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ query: message })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+                
+                const data = await response.json();
+                addMessage('assistant', JSON.stringify(data));
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('assistant', `Sorry, I encountered an error: ${error.message} 😞`);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        chatForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const message = queryInput.value.trim();
+            if (message) {
+                await sendMessage(message);
+            }
+        });
+        
+        queryInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+        
+        // Add click handler for example queries
+        document.querySelectorAll('.example-query').forEach(element => {
+            element.addEventListener('click', function() {
+                queryInput.value = this.dataset.query;
+                chatForm.dispatchEvent(new Event('submit'));
+            });
+        });
+    </script>
+</body>
+</html>

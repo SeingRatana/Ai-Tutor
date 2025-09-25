@@ -1,0 +1,32 @@
+itc:
+  canonical: "Institute of Technology of Cambodia"
+  variations:
+    - "ITC"
+    - "Techno"
+    - "សាលាតិចណូ"
+    - "Techno School"
+    - "Sala Techno"
+    - "វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា"
+    - "Institute of Technology"
+    - "Technology Institute"
+
+ams:
+  canonical: "Department of Applied Mathematics and Statistics"
+  variations:
+    - "AMS"
+    - "ReDA Lab"
+    - "Research and Data Analytics Lab"
+    - "𝐑𝐞𝐃𝐀 𝐋𝐚𝐛"
+    - "Department AMS"
+    - "Applied Math Stats"
+    - "ដេប៉ាតឺម៉ង់គណិតវិទ្យា"
+    - "Math Department"
+    - "Statistics Department"
+    - "Applied Mathematics"
+
+general:
+  - {term: "program", synonyms: ["course", "curriculum", "study", "degree"]}
+  - {term: "faculty", synonyms: ["professor", "lecturer", "teacher", "instructor"]}
+  - {term: "admission", synonyms: ["enrollment", "registration", "entry", "acceptance"]}
+  - {term: "research", synonyms: ["study", "investigation", "project", "analysis"]}
+  - {term: "dean", synonyms: ["head", "director", "chair", "leader"]}
